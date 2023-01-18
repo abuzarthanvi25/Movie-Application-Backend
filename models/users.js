@@ -2,13 +2,10 @@ const mongoose = require("mongoose");
 
 const User = new mongoose.Schema(
   {
-    email: String,
-    email_verified: Boolean,
+    unique_Id: Number,
     name: String,
-    nickname: String,
-    picture: String,
-    sub: String,
-    updated_at: String,
+    email: String,
+    password: String,
     watch_list: Object,
   },
   {

@@ -68,23 +68,72 @@ app.get("/movies", async (req, res) => {
 app.post("/users", (req, res) => {
   // res.setHeader("Content-Type", "application/json");
   try {
-    const user = new User({
-      email: req.body.email,
-      email_verified: req.body.email_verified,
-      name: req.body.name,
-      nickname: req.body.nickname,
-      picture: req.body.picture,
-      sub: req.body.sub,
-      updated_at: req.body.updated_at,
-      watch_list: req.body.watch_list,
-    });
-    user.save();
+    User.create(
+      {
+        unique_Id: req.body.uniqueId,
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        watch_list: [],
+      },
+      (error, data) => {
+        if (error) {
+          res.status(200).json({ error: `Internal Error: ${error}` });
+        } else {
+          User.findOne({ unique_Id: req.body.uniqueId }, (err, data) => {
+            if (err) {
+              res.json({
+                error: `Internal Error: ${err}`,
+              });
+            } else {
+              res.status(200).json(data);
+            }
+          });
+        }
+      }
+    );
+    // const user = new User({
+    //   unique_Id: req.body.uniqueId,
+    //   name: req.body.name,
+    //   email: req.body.email,
+    //   watch_list: [],
+    // });
+    // user.save();
+    // User.findOne({ unique_Id: req.body.uniqueId }, (err, data) => {
+    //   if (err) {
+    //     res.json({
+    //       error: `Internal Error: ${err}`,
+    //     });
+    //   } else {
+    //     res.status(200).json(data);
+    //   }
+    // });
     res.setHeader("Content-Type", "application/json");
-    res.status(200).json(req.body);
+    // res.status(200).json(req.body);
+
     // res.json({ status: "ok" });
   } catch (err) {
     res.json({ status: "error" });
     console.log(err);
+  }
+});
+
+app.post("/login/user", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    User.findOne({ email: email, password: password }, (error, data) => {
+      if (error) {
+        res.status(200).json({ error: `Internal Error: ${error}` });
+      }
+      if (data == null) {
+        res.status(200).json({ error: "INVALID CREDENTIALS" });
+      } else {
+        res.status(200).json({ message: "Login Successfull", data: data });
+      }
+    });
+    res.setHeader("Content-Type", "application/json");
+  } catch (error) {
+    res.status(404).json({ error: "Error While Fetching Data" });
   }
 });
 
